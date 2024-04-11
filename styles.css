@@ -3,13 +3,24 @@
     margin: 0;
 }
 
-canvas {
-    background: #eee;
-    display: block;
-    margin: 0 auto;
-}
-
 h1{
     text-align: center;
 }
+
+#myColor{
+    display:block;
+    margin: 0 auto;
+    text-align: center;
+}
+
+canvas {
+    background: black;
+    display: block;
+    margin: 0 auto;
+}
     
+button {
+    display:block;
+    margin: 0 auto;
+
+}
