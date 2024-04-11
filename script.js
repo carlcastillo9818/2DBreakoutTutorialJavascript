@@ -8,8 +8,8 @@ const canvas = document.getElementById("myCanvas");
 const ctx = canvas.getContext("2d");
 
 // paddle vars
-const paddleHeight = 20;
-const paddleWidth = 80;
+const paddleHeight = 10;
+const paddleWidth = 75;
 let paddleX = (canvas.width - paddleWidth) / 2;
 
 
@@ -47,15 +47,29 @@ let color = "white";
 let colorString = document.getElementById("myColor");
 
 // brick vars
-const brickRowCount = 3;
-const brickColumnCount = 5;
+/* Here we've defined the number of rows and columns of bricks, their width and height, the padding between the bricks 
+so they won't touch each other and a top and left offset so they won't start being drawn right from the edge of the Canvas. */
+const brickRowCount = 5;
+const brickColumnCount = 2;
 const brickWidth = 75;
 const brickHeight = 20;
 const brickPadding = 10;
 const brickOffsetTop = 30;
 const brickOffsetLeft = 30;
 
+// list of bricks (Array)
+let bricks = [];
 
+// store bricks in array
+/* We will hold all our bricks in a two-dimensional array. It will contain the brick columns (c), 
+which in turn will contain the brick rows (r), which in turn will each contain an object containing
+the x and y position to paint each brick on the screen */
+for (let c = 0; c < brickColumnCount; c++){
+     bricks[c] = [];
+     for (let r = 0; r < brickRowCount; r++){
+          bricks[c][r] = {x: 0, y: 0};
+     }
+}
 // listen for key presses by setting up two event listenres
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -80,15 +94,6 @@ function keyUpHandler(e) {
      else if (e.key === "Left" || e.key === "ArrowLeft") {
           leftPressed = false;
      }
-}
-
-/* This function will draw a paddle near the bottom of the screen. */
-function drawPaddle(){
-     ctx.beginPath();
-     ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-     ctx.fillStyle = "red";
-     ctx.fill();
-     ctx.closePath();
 }
 
 /*This function generates a random number in a range and decides upon the color from the list of colors based
@@ -126,18 +131,54 @@ function drawBall(color){
      ctx.closePath();
 }
 
+
+/* This function will draw a paddle near the bottom of the screen. */
+function drawPaddle() {
+     ctx.beginPath();
+     ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
+     ctx.fillStyle = "red";
+     ctx.fill();
+     ctx.closePath();
+}
+
+/*This function loops through the array of bricks and draws them to the screen. 
+
+Each brickX position is worked out as brickWidth + brickPadding, multiplied by the column number, c, 
+plus the brickOffsetLeft; the logic for the brickY is identical except that it uses the values for row number, r,
+brickHeight, and brickOffsetTop. Now every single brick can be placed in its correct place row and column, with padding 
+between each brick, drawn at an offset from the left and top canvas edges.
+
+The final version of the drawBricks() function, after assigning the brickX and brickY values as the 
+coordinates instead of (0,0) each time,
+*/
+function drawBricks(){
+     for (let c = 0; c < brickColumnCount; c++){
+          for (let r = 0; r < brickRowCount; r++){
+               let brickX = c * (brickWidth + brickPadding) + brickOffsetLeft;
+               let brickY = r * (brickHeight + brickPadding) + brickOffsetTop;
+               bricks[c][r].x = brickX;
+               bricks[c][r].y = brickY;
+               ctx.beginPath();
+               ctx.rect(brickX,brickY, brickWidth, brickHeight);
+               ctx.fillStyle = "lime";
+               ctx.fill();
+               ctx.closePath();
+          }
+     }
+}
 /*
 This function is the main drawing loop which will do the following 
 every 10 milliseconds :
-the canvas is cleared, ball is drawn, and the x and y values will be updated 
+the canvas is cleared, bricks,ball, and paddle are drawn, and the x and y values will be updated 
 for the next frame.
 */
 function draw(){
      ctx.clearRect(0,0,canvas.width,canvas.height)
 
+     drawBricks();
      drawBall(color);
      drawPaddle();
-
+     
      // display color of the ball as an html h2 (heading) element
      colorString.innerHTML = "current ball color :" + color;
 
@@ -165,27 +206,31 @@ function draw(){
           dy = -dy; // reverse the balls direction
           // change the color of the ball when it hits top  wall.
           color = getColorChoice();    
-     } else if (y + dy > canvas.height + (paddleHeight - 10)){
+     } else if (y + dy > canvas.height - ballRadius){
           console.log(canvas.height)
           
           //When balls currrent position surpasses the bottom of the screen which is 
           // OLD (ignore this one) :(canvas height - ballRadius) = a position that is a little bit before the wall
           // NEW : canvas.height + paddleHeight = a position beyond the bottom wall (similar to how it works in the atari breakout)
           
-          //  ball fell to a space that is not within the paddle so it went beyond the bottom wall.
-          //then end the game and reload the webpage.
-          alert("Game over!");
-          document.location.reload();
-          clearInterval(interval);     
-     }
-
-     // check if the ball is on the same y position as canvas.height - paddleHeight (similar position to paddle)
-     if(y + dy > canvas.height - paddleHeight){
           //then check whether the center of the ball is between the left and right edges of the paddle.
           if (x > paddleX && x < paddleX + paddleWidth) {
                dy = -dy;// reverse the balls direction
+               // old code to speed up ball every time -> dy = -dy - 1;
+               console.log("the speed is " + dy);
           }
+          else{
+               //  ball fell to a space that is not within the paddle so it went beyond the bottom wall.
+               //then end the game and reload the webpage.
+               alert("Game over!");
+               document.location.reload();
+               clearInterval(interval);     
+          }
+          
+
      }
+
+
      //Note: Try making the ball move faster when it hits the paddle.
 
 
