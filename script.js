@@ -32,8 +32,8 @@ console.log("starting position of ball is x: " + x + " and y: " + y);
 add a small value to x and y after every frame has been drawn to make it 
 appear that the ball is moving. Let's define these small values 
 as dx and dy and set their values to 2 and -2 respectively (SPEED MOVEMENT VARS).*/
-let dx = 2;
-let dy = -2;
+let dx = 4;
+let dy = -4;
 
 
 // const VARS means cannot be modified
@@ -55,8 +55,11 @@ const brickWidth = 75;
 const brickHeight = 20;
 const brickPadding = 10;
 const brickOffsetTop = 30;
-const brickOffsetLeft = 30;
+const brickOffsetLeft = 100;
 let score = 0; // game score counter for the game
+
+// number of lives available for the player
+let lives = 3;
 
 // list of bricks (Array)
 let bricks = [];
@@ -71,6 +74,7 @@ for (let c = 0; c < brickColumnCount; c++){
           bricks[c][r] = {x: 0, y: 0, status: 1};
      }
 }
+
 // listen for key presses by setting up two event listenres
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -154,9 +158,9 @@ function collisionDetection(){
                          
                          score += 5; // increase player score when brick is hit
                          if ((score / 5) == brickRowCount * brickColumnCount){
+                              // all bricks destroyed so alert the user with a message including their total score
                               alert(`YOU WIN, CONGRATS! YOUR HIGH SCORE WAS ${score}`);
                               document.location.reload();
-                              clearInterval(interval);
                          }
                     }
                }
@@ -229,11 +233,27 @@ function drawBricks(){
                     bricks[c][r].y = brickY;
                     ctx.beginPath();
                     ctx.rect(brickX, brickY, brickWidth, brickHeight);
-                    ctx.fillStyle = "lime";
+                    // color of bricks will be different on each ROW
+                    if (r == 0){
+                         ctx.fillStyle = "red";
+                    }
+                    else if (r == 1)
+                    {
+                         ctx.fillStyle = "orange";
+                    }
+                    else if (r == 2){
+                         ctx.fillStyle = "yellow";
+
+                    }
+                    else if (r == 3){
+                         ctx.fillStyle = "lime";
+                    }
+                    else{
+                         ctx.fillStyle = "blue";
+                    }
                     ctx.fill();
                     ctx.closePath();
                }
-
           }
      }
 }
@@ -243,6 +263,12 @@ function drawScore(){
      ctx.font = "16px Arial";
      ctx.fillStyle = "white";
      ctx.fillText(`Score:  ${score}`, 8, 20);
+}
+
+function drawLives(){
+     ctx.font = "16px Arial";
+     ctx.fillStyle = "white";
+     ctx.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
 }
 /*
 This function is the main drawing loop which will do the following 
@@ -258,6 +284,7 @@ function draw(){
      drawBall(color);
      drawPaddle();
      drawScore();
+     drawLives();
      collisionDetection();
 
      // display color of the ball as an html h2 (heading) element
@@ -299,11 +326,20 @@ function draw(){
                console.log("the speed is " + dy);
           }
           else{
-               //  ball fell to a space that is not within the paddle so it went beyond the bottom wall.
-               //then end the game and reload the webpage.
-               alert("Game over!");
-               document.location.reload();
-               //clearInterval(interval);  this one is needed for chrome to end the game   
+               lives--; // decrease player life when ball goes around the paddle and hits the bottom wall.
+               if (!lives){
+                    // no more lives left so then end the game and reload the webpage.
+                    alert("GAME OVER");
+                    document.location.reload();
+               }
+               else{
+                    // there are still lives remaining so then reset the ball and paddle back to original positions 
+                    x = canvas.width / 2;
+                    y = canvas.height - 30;
+                    dx = 4;
+                    dy = -4;
+                    paddleX = (canvas.width - paddleWidth) / 2;
+               }
           }
           
 
@@ -316,12 +352,12 @@ function draw(){
      // when  paddle is moving right, move their x position by number of pixels
      // when the paddle goes beyond right wall then keep its x position as the canvas width - paddleWidth
      if (rightPressed && paddleX < canvas.width - paddleWidth){
-          paddleX += 7;
+          paddleX += 9;
      }
      else if (leftPressed && paddleX > 0){
           // when paddle is moving left, move their x position by number of pixels
           // when the paddle goes beyond left wall then keep its x position at 0
-          paddleX -= 7;
+          paddleX -= 9;
 
      }
 
@@ -329,20 +365,22 @@ function draw(){
      so the ball will be painted in the new position on every update.*/
     x += dx;
     y += dy;
-}
 
-/*
-This function will initialize the main game loop code.
-*/
-function startGame(){
-     // draw func will be run within setInterval every 10 MILISECONDS.
-     // setInterval func repeats any given func at every given time interval.
-     let interval = setInterval(draw,10);
+    /* requestAnimationFrame helps the browser render the game better than
+     the fixed frame rate we currently have implemented using setInterval(). */ 
+    requestAnimationFrame(draw);
+
+    /*
+    The draw() function is now getting executed again and again within a requestAnimationFrame() loop, 
+    but instead of the fixed 10 milliseconds frame rate, we are giving control of the frame rate back to the browser. 
+    It will sync the frame rate accordingly and render the shapes only when needed. This produces a more efficient,
+     smoother animation loop than the older setInterval() method.
+    */
 }
 
 // check if user clicked on the run button which starts the game through an anonymous function.  
 document.getElementById("runButton").addEventListener("click",function(){
-     startGame();
+     draw();
      // prevent button from being clicked again by disabling it
      this.disabled = true;
      // if this is not set to true, the user can keep clicking start game which will cause the game to speed up.
