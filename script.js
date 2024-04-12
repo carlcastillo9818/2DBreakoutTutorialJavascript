@@ -49,8 +49,8 @@ let colorString = document.getElementById("myColor");
 // brick vars
 /* Here we've defined the number of rows and columns of bricks, their width and height, the padding between the bricks 
 so they won't touch each other and a top and left offset so they won't start being drawn right from the edge of the Canvas. */
-const brickRowCount = 3;
-const brickColumnCount = 5;
+const brickRowCount = 1;
+const brickColumnCount = 1;
 const brickWidth = 75;
 const brickHeight = 20;
 const brickPadding = 10;
@@ -142,22 +142,22 @@ function collisionDetection(){
                     if(x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight){
                          dy = -dy;
                          b.status = 0;
-                         score++; // increase player score when brick is hit
-                         if (score == brickRowCount * brickColumnCount){
-                              alert(`YOU WIN, CONGRATS! YOUR HIGH SCORE WAS ${score}`);
-                              document.location.reload();
-                              // clearInterval(interval);  for chrome users
-                         }
+                         //score++; // increase player score when brick is hit
+                         //if (score == brickRowCount * brickColumnCount){
+                         //     alert(`YOU WIN, CONGRATS! YOUR HIGH SCORE WAS ${score}`);
+                         //     document.location.reload();
+                         //     // clearInterval(interval);  for chrome users
+                         //}
+
                          // if you want to have the score go up by 2,3,4,etc.
                          // try this approach
-                         /*
-                         score += 2; // increase player score when brick is hit
-                         if ((score / 2) == brickRowCount * brickColumnCount){
+                         
+                         score += 5; // increase player score when brick is hit
+                         if ((score / 5) == brickRowCount * brickColumnCount){
                               alert(`YOU WIN, CONGRATS! YOUR HIGH SCORE WAS ${score}`);
                               document.location.reload();
-                              // clearInterval(interval);  for chrome users
+                              clearInterval(interval);
                          }
-                          */
                     }
                }
           }
