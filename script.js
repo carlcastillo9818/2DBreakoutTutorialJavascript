@@ -49,8 +49,8 @@ let colorString = document.getElementById("myColor");
 // brick vars
 /* Here we've defined the number of rows and columns of bricks, their width and height, the padding between the bricks 
 so they won't touch each other and a top and left offset so they won't start being drawn right from the edge of the Canvas. */
-const brickRowCount = 1;
-const brickColumnCount = 1;
+const brickRowCount = 5;
+const brickColumnCount = 7;
 const brickWidth = 75;
 const brickHeight = 20;
 const brickPadding = 10;
